@@ -55,9 +55,9 @@ def root():
 
 @app.post("/chat")
 @limiter.limit("10/day")
-async def chat(req: Request):
+async def chat(request: Request):
     try:
-        data = await req.json()
+        data = await request.json()
         user_message = data.get("message", "")
         print(f"Received message: {user_message}")
 
@@ -65,7 +65,7 @@ async def chat(req: Request):
             return {"reply": "Empty message received."}
 
         response = client.chat.completions.create(
-            model="gpt-3.5-turbo",  # or use gpt-4o if you want
+            model="gpt-3.5-turbo",
             messages=[
                 {"role": "system", "content": DEAN_DENTAL_PROMPT},
                 {"role": "user", "content": user_message}
@@ -79,4 +79,3 @@ async def chat(req: Request):
     except Exception as e:
         print(f"Error: {str(e)}")
         return {"reply": "Sorry, something went wrong on the server."}
-
