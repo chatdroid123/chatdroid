@@ -1,12 +1,11 @@
-#2
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
-import openai
+from openai import OpenAI
 import os
 
 app = FastAPI()
 
-# CORS for frontend
+# Enable CORS so frontend can access backend
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -14,8 +13,8 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Load OpenAI API key
-openai.api_key = os.getenv("OPENAI_API_KEY")
+# OpenAI client with environment key
+client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 @app.get("/")
 def root():
@@ -31,7 +30,8 @@ async def chat(req: Request):
         if not user_message:
             return {"reply": "Empty message received."}
 
-        response = openai.ChatCompletion.create(
+        # OpenAI v1.0+ compatible syntax
+        response = client.chat.completions.create(
             model="gpt-4o",
             messages=[
                 {"role": "system", "content": "You are a helpful assistant."},
@@ -39,9 +39,10 @@ async def chat(req: Request):
             ]
         )
 
-        reply = response['choices'][0]['message']['content']
+        reply = response.choices[0].message.content
         print(f"OpenAI reply: {reply}")
         return {"reply": reply}
+
     except Exception as e:
         print(f"Error: {str(e)}")
         return {"reply": "Sorry, something went wrong on the server."}
