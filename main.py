@@ -56,7 +56,7 @@ def root():
     return {"status": "ChatDroid backend is live."}
 
 @app.post("/chat")
-@limiter.limit("10/day")
+@limiter.limit("100/day")
 async def chat(request: Request):
     try:
         data = await request.json()
